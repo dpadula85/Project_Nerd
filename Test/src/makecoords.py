@@ -46,7 +46,6 @@ def make_cent(cent, weight, coords):
             print(" Application point defined in the geometrical center of atoms %s." % \
             ', '.join(u.compact_extended_list(cent, 1)))
 
-
     return np.average(points, axis=0, weights=weights)
 
 
@@ -81,7 +80,8 @@ def make_dipo(dipole, dipole_types, coords):
 
         # Generate a reference frame from point a, b, c
         # Our desired direction is b - a, i.e. the x axis
-        # of this new ref frame.
+        # of this new ref frame. (see refframe function in
+        # util.py
         ref = u.refframe(a, b, c)
         cartesian = np.eye(3)
 

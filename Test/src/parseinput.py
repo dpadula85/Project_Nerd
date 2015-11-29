@@ -17,7 +17,6 @@ import sys
 import numpy as np
 import util as u
 
-
 def parse_input(infile):
     '''Returns a Dictionary with dipole types,
     and a list of tuples for points of application of the dipoles.
@@ -27,12 +26,10 @@ def parse_input(infile):
     in that point. The dipole is described through a list containing the dipole
     type and its orientation, in terms of atomic indexes.'''
 
-
     u.checkfile(infile)
 
     type_counter = 0
     center_counter = 0
-    dipole_counter = 0
 
     dipole_types = {}
     centers = []
@@ -57,7 +54,8 @@ def parse_input(infile):
                     type_counter += 1
                     type_flag = line.split()[1]
                     dipole_types[type_flag] = map(float, line.split()[2:])
-    
+
+                    type_counter += 1
     
                 # Centers
                 elif line.split()[0].lower() == 'center':
@@ -104,12 +102,20 @@ def parse_input(infile):
                     if center_counter == 0:
                         print u.banner(text='ERROR', ch='#', length=80)
                         print
-                        print("You defined a DIPOLE before assigning it a CENTER in %s" % infile)
+                        print(" You defined a DIPOLE before assigning it a CENTER in %s" % infile)
                         print
                         sys.exit()
     
                     # dipole_counter += 1
     
+    if type_counter == 0:
+        print u.banner(text='ERROR', ch='#', length=80)
+        print
+        print(" No dipole TYPE has been defined in %s" % infile)
+        print
+        sys.exit()
+
+
     return dipole_types, centers
 
 
