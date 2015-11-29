@@ -26,7 +26,10 @@ TYPE        A       88.3        23.1        1.2
 # center      0.9   12  10
 #
 # Geometrical center defined by atoms 10-15
-# center      0     10  11  12  13  14  15
+# center      0     10-15
+#
+# Geometrical center defined by atoms 10, 13-15
+# center      0     10 13-15
 #
 #
 #
