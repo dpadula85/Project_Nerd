@@ -39,6 +39,9 @@ def options():
     parser.add_argument('-sf', '--sf', default=None, choices=['mol2', 'pdb', 'xyz'],
     help='''Format of the structure file.''')
 
+    parser.add_argument('-v', '--verbosity', action='store_true', default=False,
+    help='''Verbosity of the output.''')
+
     args = parser.parse_args()
 
     return args
@@ -54,12 +57,6 @@ if __name__ == '__main__':
 ###########        |____/ \___| \_/ \___/ \___(_) .__/ \__, |        ###########
 ###########                                     |_|    |___/         ###########
 '''
-    print
-    print u.banner(ch='#', length=80)
-    print title
-    print u.banner(ch='#', length=80)
-    print
-
 
     #
     # Get script arguments
@@ -69,6 +66,23 @@ if __name__ == '__main__':
     infile = args.infile
     structure = args.structure
     sf = args.sf
+    u.verbosity = args.verbosity
+
+    if u.verbosity:
+        print
+        print u.banner(ch='#', length=80)
+        print title
+        print u.banner(ch='#', length=80)
+        print
+
+    #
+    # Recapitulation of input files
+    #
+    if u.verbosity:
+        print(" Input files:")
+        print(" Dipole orientation file: %s" % infile)
+        print(" Structure file: %s" % structure)
+        print
 
     #
     # Try to guess structure's format from extension if not specified
@@ -110,7 +124,7 @@ if __name__ == '__main__':
     # Transform the atomix index representation in coordinates
     #
     for cent, weight, dipoles in cent_dip_couples:
-
+        
         appl_point = m.make_cent(cent, weight, coords)
 
         for dipole in dipoles:
@@ -119,7 +133,10 @@ if __name__ == '__main__':
 
             # Translate the dipole in its application point
             dipole += appl_point
-    
-    print
-    print u.banner(ch='#', length=80)
-    print
+
+        if u.verbosity:
+            print
+
+    if u.verbosity:
+        print u.banner(ch='#', length=80)
+        print

@@ -16,7 +16,11 @@
 import os
 import sys
 import numpy as np
+from itertools import groupby
+
 from elements import ELEMENTS
+
+verbosity = False
 
 # Dictionary for energy conversion
 # The key should be of the form u_a2u_b, where u_a and u_b are two different
@@ -54,6 +58,51 @@ def dict_compare(dictA, dictB):
         dictB[k] = dictA[k]
 
     return dictB
+
+
+def extend_compact_list(idxs):
+
+    extended = []
+
+    # Uncomment this line if idxs is a string and not a list
+    # idxs = idxs.split()
+
+    for idx in idxs:
+
+        to_extend = idx.split('-')
+
+        if len(to_extend) > 1:
+
+            sel =  map(int, to_extend)
+            extended += range(sel[0],sel[1]+1,1)
+
+        else:
+        
+            extended.append(int(idx))
+    
+    return extended
+
+
+def compact_extended_list(idxs, factor=0):
+
+    # factor optional parameter to clean out python numeration starting from 0
+    compact = []
+
+    for k, iterable in groupby(enumerate(sorted(idxs)), lambda x: x[1] - x[0]):
+
+         rng = list(iterable)
+
+         if len(rng) == 1:
+
+             s = str(rng[0][1] + factor)
+
+         else:
+
+             s = "%s-%s" % (rng[0][1] + factor, rng[-1][1] + factor)
+
+         compact.append(s)
+
+    return compact
 
 
 def refframe(A, B, C):
