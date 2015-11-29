@@ -54,5 +54,5 @@ dipole      A     12  14
 center      0     10  12
 dipole      A     10  12
 
-center      0     12  13  14  15  16
+center      0     12-16
 dipole      A     12  13  19  13.5

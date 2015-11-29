@@ -20,7 +20,7 @@ def options():
     Input file containing the definitions of dipole types, application
     points and directions.''')
 
-    parser.add_argument('-s', '--structure', default='struct.pdb', help='''
+    parser.add_argument('-s', '--structure', default='structure.pdb', help='''
     File containing the structure of the system.''')
 
     parser.add_argument('-sf', '--sf', default=None, choices=['mol2', 'pdb', 'xyz'],
@@ -103,6 +103,9 @@ if __name__ == '__main__':
         for dipole in dipoles:
 
             dipole = m.make_dipo(dipole, dipole_types, coords)
+
+            # Translate the dipole in its application point
+            dipole += appl_point
     
     print
     print u.banner(ch='#', length=80)

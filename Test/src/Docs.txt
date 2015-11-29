@@ -9,13 +9,22 @@
 
 ################################################################################
 
+This program calculates absorption and ECD spectra for multichromophoric systems
+following DeVoe method.
+Two input files are needed for a calculation: a structure file (accepted formats
+are currently pdb, mol2 and xyz) and an input file containing dipoles definition
+parameters.
+The default name for these two files are respectively structure.pdb and devoe.in
+but different filenames can be specified through command-line options.
 
-Input description:
+
+##############################
+###  devoe.in description  ###
+##############################
 
 A sample input is provided in devoe.in
 
-The input file for this program is a plain text file. Lines starting with '#' 
-are ignored during the reading phase.
+This is a plain text file. Lines starting with '#' are ignored.
 
 Each line of the input should start with a keyword among TYPE, CENTER and 
 DIPOLE. The keywords are case insensitive.
@@ -33,10 +42,11 @@ considered (neglect for the moment).
 
 CENTER:
 used to define a dipole application point. This keyword should be followed
-by a float number f with 0. <= f <= 1 and a series of N numbers (atom indexes). 
+by a float number W with 0 <= W <= 1 and a series of N numbers (atom indexes). 
 The dipole application point will be assigned to the geometrical center of the 
-specified atoms. If the f > 0., a weight of f will be assigned to the first 
-atom of the series in the calculation of the center.
+specified atoms. A series of consecutive atoms can be specified with the compact
+notation N1-N2. If W > 0, a weight of W will be assigned to the first atom 
+of the series in the calculation of the center.
 All the dipoles defined after a CENTER keyword will be applied in the point 
 defined with this keyword.
 To change application point for a new set of dipoles, leave a blank line and 

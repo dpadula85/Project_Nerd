@@ -5,6 +5,29 @@ import numpy as np
 import util as u
 
 
+def extend_compact_list(idxs):
+
+    extended = []
+
+    # Uncomment this line if idxs is a string and not a list
+    # idxs = idxs.split()
+
+    for idx in idxs:
+
+        to_extend = idx.split('-')
+
+        if len(to_extend) > 1:
+
+            sel =  map(int, to_extend)
+            extended += range(sel[0],sel[1]+1,1)
+
+        else:
+        
+            extended.append(int(idx))
+    
+    return extended
+
+
 def parse_input(infile):
     '''Returns a Dictionary with dipole types,
     and a list of tuples for points of application of the dipoles.
@@ -51,7 +74,7 @@ def parse_input(infile):
     
                     center_counter += 1
                     weight = float(line.split()[1])
-                    atom_idx = map(int, line.split()[2:])
+                    atom_idx = extend_compact_list(line.split()[2:])
 
                     # Adjust indices to Python's numeration
                     atom_idx = map(lambda x: x - 1, atom_idx)
@@ -70,12 +93,13 @@ def parse_input(infile):
                         dip_ori = data[2:]
                         
                         if len(dip_ori) == 2:
-                            dip_ori = map(int, dip_ori)
+                            dip_ori = extend_compact_list(dip_ori)
 
                         elif len(dip_ori) > 2:
                             theta = float(dip_ori[-1])
-                            dip_ori = map(int, dip_ori[:-1])
+                            dip_ori = extend_compact_list(dip_ori[:-1])
                             dip_ori = dip_ori + [theta]
+
 
                         dipole = dip_type + dip_ori
                         dipoles.append(dipole)
