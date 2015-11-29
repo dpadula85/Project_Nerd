@@ -1,0 +1,12 @@
+l'ultima cifra nella prima parte è 0 per definire la posizione
+oppure 1, 2, 3 etc per definire l'orinetazione e il numero del dipolo
+nel senso che in fondo puopi definire n dipoli e qui li richiami
+il penultimo 0. serve se vuoi definire la posizione tra due punti non nel mezzo ma su una linea tra i due ad una certa distanza dal primo
+quindi ad esempio 1 2 90. significa sulla linea tra 1 e 2 spostato al 90% verso 2
+la sfilza di zeri è solo per fargli fare il salto di sezione
+idem gli zeri finali, serve a dire di smettere di leggere
+la linea dei dipoli invece è
+numero d'onda iniziale, n.d'o. finale, step di n.d'o., sempre 0, forza dipolare, n.d'.o. del dipolo (frquenza di transizione), damping (larghezza di riga)
+i numeri d'onda sono tutti in kK
+il sempre 0 in realtà serve per la componente magnetica
+è diverso da zero se hai anche un momento magnetico

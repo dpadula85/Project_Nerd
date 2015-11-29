@@ -1,0 +1,58 @@
+#
+# Dipole type Section
+#
+# Keyword   # Flag  # Dip. S.   # Freq.     # Damping
+#
+TYPE        A       88.3        23.1        1.2
+
+#
+# Orientation Section
+#
+# Center parameters:
+# Keyword   # Weight    # Atom1     # Atom 2    # Atom 3 ... # Atom N
+#
+# Examples of Center definition
+#
+# Point halfway between atoms 10 and 12
+# center      0     10  12
+#
+# Point along atoms 10-12 direction, 90% close to atom 10
+# center      0.9   10  12
+#
+# Point along atoms 10-12 direction, 90% close to atom 12
+# center      0.1   10  12
+#
+# Point along atoms 10-12 direction, 90% close to atom 12
+# center      0.9   12  10
+#
+# Geometrical center defined by atoms 10-15
+# center      0     10  11  12  13  14  15
+#
+#
+#
+# Dipole Parameters:
+# Keyword   # Type      # Atom1     # Atom 2    # Atom 3    # Theta
+#
+# Examples of Dipole definition
+#
+# Dipole of type A along 10 12
+# dipole      A     10  12
+#
+# Dipole of type A along 10 12, out of plane defined by 10 12 13 by 5 deg
+# dipole      A     10  12  13  5
+#
+# Dipole of type A along 10 13, out of plane defined by 10 12 13 by 5 deg
+# dipole      A     10  13  12  5
+#
+center      0.9   10  11
+dipole      A     10  11
+dipole      A     12  14
+
+# To change application point, define another center!
+# Leave a blank line between two different centers sections!
+#
+center      0     10  12
+dipole      A     10  12
+
+center      0     12  13  14  15  16
+dipole      A     12  13  19  13.5
