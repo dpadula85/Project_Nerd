@@ -12,36 +12,59 @@
 
 Input description:
 
-The input file for this program is a plain text file. Lines starting with '#' are
+A sample input is provided in devoe.in
+
+The input file for this program is a plain text file. Lines starting with '#' 
+are
 ignored during the reading phase.
 
-Each line of the input should start with a keyword among TYPE, CENTER and DIPOLE.
+Each line of the input should start with a keyword among TYPE, CENTER and 
+DIPOLE.
 The keywords are case insensitive.
-These keywords require a certain number of parameter after them.
+These keywords require a certain number of parameters after them.
 
 TYPE:
 used to define a dipole type. This keyword should be followed by 4 (5) para-
 meters. The first parameter is a flag to be assigned to this dipole type. This
-flag should be used to assign a dipole type when placing a dipole with the keyword
+flag should be used to assign a dipole type when placing a dipole with the 
+keyword
 DIPOLE.
-The following parameters are the Dipolar Strength, the Excitation Energy and the Damping.
-(Units used normally are Kk (1 Kk = 1000 cm-1). The fourth optional parameter is to be
+The following parameters are the Dipolar Strength, the Excitation Energy and 
+the Damping.
+(Units used normally are Kk (1 Kk = 1000 cm-1). The fourth optional parameter 
+is to be
 used only if a magnetic component is to be considered (neglect for the moment).
 
 CENTER:
 used to define a dipole application point. This keyword should be followed
-by a float number f with 0. <= f <= 1 and a series of N numbers (atom indexes). The dipole
-application point will be assigned to the geometrical center of the specified atoms.
-If the f > 0., a weight of f will be assigned to the first atom of the series in the
+by a float number f with 0. <= f <= 1 and a series of N numbers (atom indexes). 
+The dipole
+application point will be assigned to the geometrical center of the specified 
+atoms.
+If the f > 0., a weight of f will be assigned to the first atom of the series 
+in the
 calculation of the center.
-All the dipoles defined after a CENTER keyword will be applied in the point defined with
+All the dipoles defined after a CENTER keyword will be applied in the point 
+defined with
 this keyword.
-To change application point for a new set of dipoles, leave a blank line and define a new
+To change application point for a new set of dipoles, leave a blank line and 
+define a new
 CENTER.
 
 DIPOLE:
-used to define the direction of a dipole of a certain TYPE applied in the previously
+used to define the direction of a dipole of a certain TYPE applied in the 
+previously
 defined point defined through CENTER.
-The first parameter to follow is the TYPE of the dipole, which should have been previously
-defined with TYPE keyword. The following parameters are 2 atom indexes and, optionally, the
-angle between the direction defined by the two atoms and the dipole.
+The first parameter to follow is the TYPE of the dipole, which should have been 
+previously
+defined with TYPE keyword. The following parameters are 2 or 3 atom indexes.
+If only two atoms are specified, the dipole will be oriented in the direction 
+from atom 1
+to atom 2.
+If three atoms are specified, a fourth parameter is expected, i.e. the angle 
+theta the dipole forms
+with the plane defined by the three atoms. In this case the dipole will be 
+oriented in the
+direction from atom 1 to atom 2, but it will form an angle theta with the plane 
+defined by
+atom 1, atom 2 and atom 3.
