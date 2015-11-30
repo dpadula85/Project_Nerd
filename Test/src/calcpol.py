@@ -21,9 +21,6 @@ from scipy.constants import *
 import util as u
 
 # Working in atomic units
-# Working in atomic units
-# Working in atomic units
-# Working in atomic units
 
 au_DipS = 0.393430307**2
 
@@ -90,8 +87,10 @@ def pol_real(pol_im_part):
 
     SpectralRange = pol_im_part[:,0]
     pol_im = pol_im_part[:,1]
+    pol_real_part = KK(SpectralRange, pol_im)
+    pol_real_part = np.c_[SpectralRange, pol_real_part]
 
-    return KK(SpectralRange, pol_im)
+    return pol_real_part
 
 
 def KK(e, im):
@@ -104,7 +103,7 @@ def KK(e, im):
         mask = e != e[i]
         re[i] = sum(e[mask]*im[mask]/(ee[mask]-e[i]*e[i]))
 
-    return presum * re #+ 1 #+1 is needed only for epsilon1 calculation for xx, yy and zz projections
+    return presum * re #+1 is needed only for epsilon1 calculation for xx, yy and zz projections
 
 
 if __name__ == '__main__':
