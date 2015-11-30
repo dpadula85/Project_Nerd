@@ -1,9 +1,9 @@
 #
 # Dipole type Section
 #
-# Keyword   # Flag  # Dip. S.   # Freq.     # Damping
+# Keyword   # Flag  # Dip. S. (D**2)   # Freq. (KK)     # Damping (KK)
 #
-TYPE        A       88.3        23.1        1.2
+TYPE        A       88.3               23.1             1.2
 
 #
 # Orientation Section

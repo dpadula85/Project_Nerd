@@ -41,9 +41,10 @@ meters. The first parameter is a flag to be assigned to this dipole type. This
 flag should be used to assign a dipole type when placing a dipole with the 
 keyword DIPOLE.
 The following parameters are the Dipolar Strength, the Excitation Energy and 
-the Damping. (Units used normally are Kk (1 Kk = 1000 cm-1). The fourth 
-optional parameter is to be used only if a magnetic component is to be 
-considered (neglect for the moment).
+the Damping. (Units used normally are D**2 for the dipolar strength and Kk
+(1 Kk = 1000 cm-1) for energies.
+The fourth optional parameter is to be used only if a magnetic component is to
+be considered (neglect for the moment).
 
 CENTER:
 used to define a dipole application point. This keyword should be followed
