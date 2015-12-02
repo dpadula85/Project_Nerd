@@ -43,8 +43,9 @@ keyword DIPOLE.
 The following parameters are the Dipolar Strength, the Excitation Energy and 
 the Damping. (Units used normally are D**2 for the dipolar strength and Kk
 (1 Kk = 1000 cm-1) for energies.
-The fourth optional parameter is to be used only if a magnetic component is to
-be considered (neglect for the moment).
+The fourth optional parameter is a string that specifies if the polarizability
+associated to this dipole type is electric ('ele') or magnetic ('mag'). If
+omitted, an electric polarizability will be considered, by default.
 
 CENTER:
 used to define a dipole application point. This keyword should be followed

@@ -72,7 +72,6 @@ def make_dipo(dipole, dipole_types, coords):
     # theta with the plane defined by 3 atoms
     elif len(dip_ori) == 4:
 
-
         a = coords[dip_ori[0]]
         b = coords[dip_ori[1]]
         c = coords[dip_ori[2]]
@@ -105,7 +104,6 @@ def make_dipo(dipole, dipole_types, coords):
 
 
     else:
-
         print u.banner(text='ERROR', ch='#', length=80)
         print("Unrecognized number of parameters for dipole orientation.")
         print

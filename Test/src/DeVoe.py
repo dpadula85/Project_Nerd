@@ -88,26 +88,21 @@ if __name__ == '__main__':
     # Try to guess structure's format from extension if not specified
     #
     if not sf:
-
         sf = args.structure.split('.')[-1]
 
     #
     # Get structure
     #
     if sf == 'mol2':
-
         coords = pi.parse_MOL2(structure)
 
     elif sf == 'pdb':
-
         coords = pi.parse_PDB(structure)
 
     elif sf == 'xyz':
-
         coords = pi.parse_XYZ(structure)
 
     else:
-
         print u.banner(text='ERROR', ch='#', length=80)
         print("%s file format not recognized." % structure)
         print
@@ -118,12 +113,25 @@ if __name__ == '__main__':
     # indexes from the input file
     #
     coords = np.array(coords)
-    dipole_types, cent_dip_couples = pi.parse_input(infile)
+    dipole_types, dipoles_info = pi.parse_input(infile)
 
     #
-    # Transform the atomix index representation in coordinates
+    # Calculate  imaginary and real parts of the desired type of polarizability
+    # for each dipole type
     #
-    for cent, weight, dipoles in cent_dip_couples:
+    for dip_type, params in dipole_types.iteritems():
+
+        info = params[0]
+        pol_type = params[1]
+
+        DipStrength = info[0]
+        ExcFreq = info[1]
+        damping = info[2]
+
+    #
+    # Transform the atomic index representation in coordinates
+    #
+    for cent, weight, dipoles in dipoles_info:
         
         appl_point = m.make_cent(cent, weight, coords)
 
@@ -132,7 +140,7 @@ if __name__ == '__main__':
             dipole = m.make_dipo(dipole, dipole_types, coords)
 
             # Translate the dipole in its application point
-            dipole += appl_point
+            # dipole += appl_point
 
         if u.verbosity:
             print

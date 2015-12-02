@@ -53,7 +53,15 @@ def parse_input(infile):
                     
                     type_counter += 1
                     type_flag = line.split()[1]
-                    dipole_types[type_flag] = map(float, line.split()[2:])
+
+                    try:
+                        dipole = map(float, line.split()[2:])
+                        pol_type = 'ele'
+                        dipole_types[type_flag] = (map(float, line.split()[2:]), pol_type)
+
+                    except ValueError:
+                        pol_type = line.split()[-1]
+                        dipole_types[type_flag] = (map(float, line.split()[2:-1]), pol_type)
 
                     type_counter += 1
     
