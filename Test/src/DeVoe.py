@@ -18,6 +18,7 @@ import numpy as np
 import argparse as arg
 
 import parseinput as pi
+import calcpol as cp
 import makecoords as m
 import util as u
 
@@ -38,6 +39,13 @@ def options():
 
     parser.add_argument('-sf', '--sf', default=None, choices=['mol2', 'pdb', 'xyz'],
     help='''Format of the structure file.''')
+
+    parser.add_argument('-ls', '--lineshape', default='lor', choices=['lor', 'gau'],
+    help='''Spectral lineshape.''')
+
+    parser.add_argument('--min', default=16000, help='''Low energy limit in wavenumbers.''')
+
+    parser.add_argument('--max', default=35000, help='''High energy limit in wavenumbers.''')
 
     parser.add_argument('-v', '--verbosity', action='store_true', default=False,
     help='''Verbosity of the output.''')
@@ -66,7 +74,10 @@ if __name__ == '__main__':
     infile = args.infile
     structure = args.structure
     sf = args.sf
+    lineshape = args.lineshape
     u.verbosity = args.verbosity
+
+    SpecRange = np.arange(args.min, args.max + 1, (args.max - args.min)/500.)
 
     if u.verbosity:
         print
@@ -119,6 +130,13 @@ if __name__ == '__main__':
     # Calculate  imaginary and real parts of the desired type of polarizability
     # for each dipole type
     #
+
+    if lineshape == 'lor':
+        ls_funct = cp.uv_spec_lorentzian
+
+    elif lineshape == 'gau':
+        ls_funct = cp.uv_spec_gaussian
+
     for dip_type, params in dipole_types.iteritems():
 
         info = params[0]
@@ -127,6 +145,14 @@ if __name__ == '__main__':
         DipStrength = info[0]
         ExcFreq = info[1]
         damping = info[2]
+
+        uvspec = ls_funct(SpecRange, DipStrength, ExcFreq, damping)
+        pol_im = cp.pol_im(uvspec)
+        pol_re = cp.pol_re(pol_im)
+
+        # np.savetxt('uv.txt', uvspec, fmt='%.6e')
+        # np.savetxt('im.txt', pol_im, fmt='%.6e')
+        # np.savetxt('re.txt', pol_re, fmt='%.6e')
 
     #
     # Transform the atomic index representation in coordinates

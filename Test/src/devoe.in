@@ -1,10 +1,10 @@
 #
 # Dipole type Section
 #
-# Keyword   # Flag  # Dip. S. (D**2)   # Freq. (KK)     # Damping (KK)  # Pol type
+# Keyword   # Flag  # Dip. S. (D**2)   # Freq. (cm-1)     # Damping (cm-1)  # Pol type
 #
-TYPE        A       88.3               23.1             1.2
-TYPE        B       42.1               25.2             1.2             mag
+TYPE        A       88.3               23100             1200
+#TYPE        B       42.1               25200             1200             mag
 
 #
 # Orientation Section

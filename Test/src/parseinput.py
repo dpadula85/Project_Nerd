@@ -20,8 +20,15 @@ import util as u
 def parse_input(infile):
     '''Returns a Dictionary with dipole types,
     and a list of tuples for points of application of the dipoles.
+    The keys of dipole types dictionary are the flags set ny the user in the input.
+    Each value is a tuple. The first element of the tuple is a list containing the
+    Dipolar Strength, the Excitation energy and the damping. The second element of
+    the tuple is a flag defining the type of polarizability to calculate (electric or
+    magnetic).
+
+    For application points, the data are tuples of 3 elements.
     Each tuple contains, as first element, the center expressed in terms
-    of atom indexes and, ss second element, the weight to be applied on the
+    of atom indexes and, as second element, the weight to be applied on the
     first element of the list. As third element, we have a list of dipoles to be applied
     in that point. The dipole is described through a list containing the dipole
     type and its orientation, in terms of atomic indexes.'''
@@ -54,11 +61,13 @@ def parse_input(infile):
                     type_counter += 1
                     type_flag = line.split()[1]
 
+                    # Try to read TYPE definition without optional keyword
                     try:
                         dipole = map(float, line.split()[2:])
                         pol_type = 'ele'
                         dipole_types[type_flag] = (map(float, line.split()[2:]), pol_type)
 
+                    # Read TYPE definition with optional keyword
                     except ValueError:
                         pol_type = line.split()[-1]
                         dipole_types[type_flag] = (map(float, line.split()[2:-1]), pol_type)
