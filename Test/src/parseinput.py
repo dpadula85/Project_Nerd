@@ -24,7 +24,8 @@ def parse_input(infile):
     Each value is a tuple. The first element of the tuple is a list containing the
     Dipolar Strength, the Excitation energy and the damping. The second element of
     the tuple is a flag defining the type of polarizability to calculate (electric or
-    magnetic).
+    magnetic). The third element of the tuple if present only for magnetic polarizabilities
+    and it is the bj coefficient.
 
     For application points, the data are tuples of 3 elements.
     Each tuple contains, as first element, the center expressed in terms
@@ -69,8 +70,9 @@ def parse_input(infile):
 
                     # Read TYPE definition with optional keyword
                     except ValueError:
-                        pol_type = line.split()[-1]
-                        dipole_types[type_flag] = (map(float, line.split()[2:-1]), pol_type)
+                        pol_type = line.split()[-2]
+                        bj = float(line.split()[-1])
+                        dipole_types[type_flag] = (map(float, line.split()[2:-2]), pol_type, bj)
 
                     type_counter += 1
     

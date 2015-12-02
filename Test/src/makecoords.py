@@ -63,7 +63,8 @@ def make_dipo(dipole, dipole_types, coords):
         b = coords[dip_ori[1]]
         direction = (b - a) / np.linalg.norm(b - a)
 
-        dip = dip_s * direction
+        # dip = dip_s * direction
+        dip = direction
 
         if u.verbosity:
             print(" Dipole oriented along %s." % ', '.join(u.compact_extended_list(dip_ori, 1)))
@@ -96,7 +97,8 @@ def make_dipo(dipole, dipole_types, coords):
         direction = np.dot(x, Ry)
         direction = np.dot(direction, T.T)
         
-        dip = dip_s * direction
+        # dip = dip_s * direction
+        dip = direction
 
         if u.verbosity:
             print(" Dipole oriented out of the plane defined by %s by %5.2f degrees." % \

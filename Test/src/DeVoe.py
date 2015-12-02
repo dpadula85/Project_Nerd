@@ -127,20 +127,76 @@ if __name__ == '__main__':
     dipole_types, dipoles_info = pi.parse_input(infile)
 
     #
+    # Transform the atomic index representation in coordinates and store the
+    # application point coordinates and the direction vector in a diagonal
+    # matrix
+    #
+    centers = np.array([]).reshape(0,3)
+    orientations = np.array([]).reshape(0,3)
+
+    for cent, weight, dipoles in dipoles_info:
+
+        # Get application point coordinates
+        appl_point = m.make_cent(cent, weight, coords)
+
+        for dipole in dipoles:
+
+            # Get the unit vector for the orientation
+            e = m.make_dipo(dipole, dipole_types, coords)
+            
+            centers = np.vstack((centers, appl_point))
+            orientations = np.vstack((orientations, e))
+
+            # Translate the dipole in its application point
+            # dipole += appl_point
+
+        if u.verbosity:
+            print
+    
+    #
+    # Build Interaction Matrix
+    #
+    G = np.eye(len(centers))
+
+    for i in range(len(centers)):
+        for j in range(i + 1, len(centers)):
+
+            # Comparison element by element of the coordinates of the center
+            if (centers[i] == centers[j]).all():
+
+                # set the interaction matrix element to 0
+                G[i,j] = 0.0
+
+            else:
+                # Calculate the interaction
+                e_i = orientations[i]
+                e_j = orientations[j]
+                r_ij = centers[j] - centers[i]
+                e_ij = r_ij / np.linalg.norm(r_ij)
+
+    #
     # Calculate  imaginary and real parts of the desired type of polarizability
     # for each dipole type
     #
-
     if lineshape == 'lor':
         ls_funct = cp.uv_spec_lorentzian
 
     elif lineshape == 'gau':
         ls_funct = cp.uv_spec_gaussian
 
+    if u.verbosity:
+        print(" Lineshape: %s" % lineshape)
+        print
+
     for dip_type, params in dipole_types.iteritems():
 
         info = params[0]
         pol_type = params[1]
+
+        if pol_type == 'mag':
+            bj = params[2]
+        else:
+            bj = 0.0
 
         DipStrength = info[0]
         ExcFreq = info[1]
@@ -153,23 +209,6 @@ if __name__ == '__main__':
         # np.savetxt('uv.txt', uvspec, fmt='%.6e')
         # np.savetxt('im.txt', pol_im, fmt='%.6e')
         # np.savetxt('re.txt', pol_re, fmt='%.6e')
-
-    #
-    # Transform the atomic index representation in coordinates
-    #
-    for cent, weight, dipoles in dipoles_info:
-        
-        appl_point = m.make_cent(cent, weight, coords)
-
-        for dipole in dipoles:
-
-            dipole = m.make_dipo(dipole, dipole_types, coords)
-
-            # Translate the dipole in its application point
-            # dipole += appl_point
-
-        if u.verbosity:
-            print
 
     if u.verbosity:
         print u.banner(ch='#', length=80)
