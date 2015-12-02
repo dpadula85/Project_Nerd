@@ -37,7 +37,7 @@ CGS_to_Acube = 1e24
 CGS_CNST = 3000 * log10 * CGS_h * CGS_c / (32 * np.pi**3 * N_A)
 
 #
-# Lorentzian and Gaussian Bandwidth from Chirality, 2013, 25. 243
+# Lorentzian and Gaussian Bandwidth from Chirality, 2013, 25, 243
 # Lorentzian gamma : HWHM
 # Gaussian sigma : HW at 1/e height
 #
