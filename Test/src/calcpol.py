@@ -19,54 +19,46 @@ from scipy.constants import *
 
 import util as u
 
+# Calculation of some used constants
 log10 = np.log(10)
 pi_sq = np.pi**2
 
-# CGS UNITS
-CGS_h = 6.6260755e-27
-CGS_c = c * 100
-CGS_DipS = 1e-36
+# Definition of some useful constants in CGS units
+CGS_h = h * 1e7
+CGS_c = c * 1e2
 
-# C : constant prefactor
+# Conversion factor for Dipolar Strength from D**2 to CGS (statC * cm)
+squareD_to_CGS = 1e-36
+
+# Conversion factor for Polarizability from cm**3 (CGS) to A**3 (human readable)
+CGS_to_Acube = 1e24
+
+# Prefactor for absorption spectra in CGS units 
 CGS_CNST = 3000 * log10 * CGS_h * CGS_c / (32 * np.pi**3 * N_A)
 
-# Working in atomic units
-
-# au_DipS = 0.393430307**2
-
-# # Conversion factor for spectrum from au to M-1 cm-1
-# bohr_2_dm = value('Bohr radius') * 10
-# spec_factor = bohr_2_dm**2 / 10
-
-# # Convert C to atomic units
-# au_C = 6000 * log10 / (32 * pi_sq * N_A)
-
-# def f_osc(DipS, ExcFreq):
-
-#     # DipS in D**2, ExcFreq in KK
-#     f = 4.76 * ExcFreq * DipS / 10**4
-
-#     return f
-
-# Control Units!!
-def uv_spec_gaussian(SpectralRange, DipS, ExcFreq, sigma):
+#
+# Lorentzian and Gaussian Bandwidth from Chirality, 2013, 25. 243
+# Lorentzian gamma : HWHM
+# Gaussian sigma : HW at 1/e height
+#
+def uv_spec_lorentzian(SpectralRange, DipS, ExcFreq, gamma):
 
     # Working in CGS units
-    # DipS = DipS * CGS_DipS
-    cnst = CGS_DipS / (4 * CGS_CNST * np.pi**0.5)
-    exponent = -1 * ((SpectralRange - ExcFreq) / sigma)**2
-    spec = cnst * DipS * ExcFreq * np.exp(exponent) / sigma
+    DipS = DipS * squareD_to_CGS
+    cnst = 1 / (4 * CGS_CNST * np.pi**0.5)
+    spec = cnst * DipS * ExcFreq * gamma / (gamma**2 + (SpectralRange - ExcFreq)**2)
     spec = np.c_[SpectralRange, spec]
 
     return spec
 
 
-def uv_spec_lorentzian(SpectralRange, DipS, ExcFreq, gamma):
+def uv_spec_gaussian(SpectralRange, DipS, ExcFreq, sigma):
 
     # Working in CGS units
-    # DipS = DipS * CGS_DipS
-    cnst = CGS_DipS / (CGS_CNST * np.pi)
-    spec = cnst * DipS * gamma * ExcFreq / (gamma**2 + (SpectralRange - ExcFreq)**2)
+    DipS = DipS * squareD_to_CGS
+    cnst = 1 / (4 * CGS_CNST * np.pi**0.5)
+    exponent = -1 * ((SpectralRange - ExcFreq) / sigma)**2
+    spec = cnst * DipS * ExcFreq * np.exp(exponent) / sigma
     spec = np.c_[SpectralRange, spec]
 
     return spec
@@ -78,12 +70,13 @@ def pol_im(uvspec):
     SpectralRange = uvspec[:,0]
     epsilon = uvspec[:,1]
 
-    # Working in CGS units
+    # Working in CGS units, using SpectralRange in Hz
+    # in fact speed of light at the numerator is missing
     cnst = 6909 / (8 * pi_sq * N_A)
     pol_im_part =  cnst * epsilon / SpectralRange
 
-    # Conversion to A**3
-    pol_im_part *= 1e24  
+    # Conversion from cm**3 to A**3
+    pol_im_part *= CGS_to_Acube  
     pol_im_part = np.c_[SpectralRange, pol_im_part]
 
     return pol_im_part
