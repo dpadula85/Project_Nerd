@@ -33,17 +33,17 @@ def make_cent(cent, weight, coords):
     for idx in cent:
         points = np.vstack((points, coords[idx]))
 
-    if u.verbosity:
+    if u.verbosity >= 2:
 
         if len(cent) == 1:
-            print(" Application point defined in atom %s." % ', '.join(u.compact_extended_list(cent, 1)))
+            print("   Application point defined in atom %s." % ', '.join(u.compact_extended_list(cent, 1)))
 
         elif len(cent) > 1 and weight > 0:
-            print(" Application point defined in the geometrical center of atoms %s with weight\n \
+            print("   Application point defined in the geometrical center of atoms %s with weight\n \
 %4.2f on atom %s." % (', '.join(u.compact_extended_list(cent, 1)), weight, cent[0] + 1))
 
         elif len(cent) > 1:
-            print(" Application point defined in the geometrical center of atoms %s." % \
+            print("   Application point defined in the geometrical center of atoms %s." % \
             ', '.join(u.compact_extended_list(cent, 1)))
 
     return np.average(points, axis=0, weights=weights)
@@ -66,8 +66,8 @@ def make_dipo(dipole, dipole_types, coords):
         # dip = dip_s * direction
         dip = direction
 
-        if u.verbosity:
-            print(" Dipole oriented along %s." % ', '.join(u.compact_extended_list(dip_ori, 1)))
+        if u.verbosity >= 2:
+            print("   Dipole oriented along %s." % ', '.join(u.compact_extended_list(dip_ori, 1)))
         
     # Orient dipole along an interatomic axis and forming and angle
     # theta with the plane defined by 3 atoms
@@ -100,8 +100,8 @@ def make_dipo(dipole, dipole_types, coords):
         # dip = dip_s * direction
         dip = direction
 
-        if u.verbosity:
-            print(" Dipole oriented out of the plane defined by %s by %5.2f degrees." % \
+        if u.verbosity >= 2:
+            print("   Dipole oriented out of the plane defined by %s by %5.2f degrees." % \
             (', '.join(u.compact_extended_list(dip_ori[:-1], 1)), theta))
 
 

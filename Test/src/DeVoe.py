@@ -47,8 +47,7 @@ def options():
 
     parser.add_argument('--max', default=35000, help='''High energy limit in wavenumbers.''')
 
-    parser.add_argument('-v', '--verbosity', action='store_true', default=False,
-    help='''Verbosity of the output.''')
+    parser.add_argument('-v', '--verbosity', default=0, action='count', help='''Verbosity of the output.''')
 
     args = parser.parse_args()
 
@@ -79,7 +78,7 @@ if __name__ == '__main__':
 
     SpecRange = np.arange(args.min, args.max + 1, (args.max - args.min)/500.)
 
-    if u.verbosity:
+    if u.verbosity >= 1:
         print
         print u.banner(ch='#', length=80)
         print title
@@ -89,10 +88,13 @@ if __name__ == '__main__':
     #
     # Recapitulation of input files
     #
-    if u.verbosity:
-        print(" Input files:")
-        print(" Dipole orientation file: %s" % infile)
-        print(" Structure file: %s" % structure)
+    if u.verbosity >= 1:
+        print(" > READING INPUT FILES...")
+        print
+
+    if u.verbosity >= 2:
+        print("   Dipole orientation file : %s" % infile)
+        print("   Structure file          : %s" % structure)
         print
 
     #
@@ -134,6 +136,10 @@ if __name__ == '__main__':
     orientations = np.array([]).reshape(0,3)
     # pol_types_list = []
 
+    if u.verbosity >= 1:
+        print(" > ORIENTING DIPOLES...")
+        print
+
     for cent, weight, dipoles in dipoles_info:
 
         # Get application point coordinates
@@ -151,12 +157,16 @@ if __name__ == '__main__':
             orientations = np.vstack((orientations, e))
             # pol_types_list.append(dipole[0])
 
-        if u.verbosity:
+        if u.verbosity >= 2:
             print
 
     #
     # Build Interaction Matrix
     #
+    if u.verbosity >= 1:
+        print(" > BUILDING INTERACTION MATRIX...")
+        print
+
     G = np.eye(len(centers))
 
     # We only need to build the G matrix elements with i != j
@@ -191,8 +201,12 @@ if __name__ == '__main__':
     elif lineshape == 'gau':
         ls_funct = cp.uv_spec_gaussian
 
-    if u.verbosity:
-        print(" Lineshape: %s" % lineshape)
+    if u.verbosity >= 1:
+        print(" > CALCULATING POLARIZABILITIES...")
+        print
+
+    if u.verbosity >= 2:
+        print("   Lineshape: %s" % lineshape)
         print
 
     # pol_types_dict = {}
@@ -221,6 +235,8 @@ if __name__ == '__main__':
         # np.savetxt('im.txt', pol_im, fmt='%.6e')
         # np.savetxt('re.txt', pol_re, fmt='%.6e')
 
-    if u.verbosity:
+    if u.verbosity >= 1:
+        print(" > DONE!")
+        print
         print u.banner(ch='#', length=80)
         print
