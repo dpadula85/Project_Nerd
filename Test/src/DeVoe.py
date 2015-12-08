@@ -80,9 +80,9 @@ if __name__ == '__main__':
 
     if u.verbosity >= 1:
         print
-        print u.banner(ch='#', length=80)
-        print title
-        print u.banner(ch='#', length=80)
+        print(u.banner(ch='#', length=80))
+        print(title)
+        print(u.banner(ch='#', length=80))
         print
 
     #
@@ -116,7 +116,7 @@ if __name__ == '__main__':
         coords = pi.parse_XYZ(structure)
 
     else:
-        print u.banner(text='ERROR', ch='#', length=80)
+        print(u.banner(text='ERROR', ch='#', length=80))
         print("%s file format not recognized." % structure)
         print
         sys.exit()
@@ -238,5 +238,5 @@ if __name__ == '__main__':
     if u.verbosity >= 1:
         print(" > DONE!")
         print
-        print u.banner(ch='#', length=80)
+        print(u.banner(ch='#', length=80))
         print

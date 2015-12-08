@@ -106,7 +106,7 @@ def make_dipo(dipole, dipole_types, coords):
 
 
     else:
-        print u.banner(text='ERROR', ch='#', length=80)
+        print(u.banner(text='ERROR', ch='#', length=80))
         print("Unrecognized number of parameters for dipole orientation.")
         print
         sys.exit()

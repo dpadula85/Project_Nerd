@@ -119,7 +119,7 @@ def parse_input(infile):
                 elif line.split()[0].lower() == 'dipole':
     
                     if center_counter == 0:
-                        print u.banner(text='ERROR', ch='#', length=80)
+                        print(u.banner(text='ERROR', ch='#', length=80))
                         print
                         print(" You defined a DIPOLE before assigning it a CENTER in %s" % infile)
                         print
@@ -128,7 +128,7 @@ def parse_input(infile):
                     # dipole_counter += 1
     
     if type_counter == 0:
-        print u.banner(text='ERROR', ch='#', length=80)
+        print(u.banner(text='ERROR', ch='#', length=80))
         print
         print(" No dipole TYPE has been defined in %s" % infile)
         print

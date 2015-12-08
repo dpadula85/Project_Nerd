@@ -47,7 +47,7 @@ energy_conversion = {'au'       : 1,
 def checkfile(filename):
 
     if not os.path.isfile(filename):
-        print banner(text='ERROR', ch='#', length=80)
+        print(banner(text='ERROR', ch='#', length=80))
         print("File %s not found!" % filename)
         sys.exit()
 
