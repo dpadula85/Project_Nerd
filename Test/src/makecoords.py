@@ -31,7 +31,8 @@ def make_cent(cent, weight, coords):
         weights = None
 
     for idx in cent:
-        points = np.vstack((points, coords[idx]))
+        # -1 to adapt to Python numeration
+        points = np.vstack((points, coords[idx - 1]))
 
     if u.verbosity >= 2:
 
@@ -39,8 +40,8 @@ def make_cent(cent, weight, coords):
             print("   Application point defined in atom %s." % ', '.join(u.compact_extended_list(cent, 1)))
 
         elif len(cent) > 1 and weight > 0:
-            print("   Application point defined in the geometrical center of atoms %s with weight\n \
-%4.2f on atom %s." % (', '.join(u.compact_extended_list(cent, 1)), weight, cent[0] + 1))
+            print("   Application point defined in the geometrical center of atoms %s with\n \
+  weight %4.2f on atom %s." % (', '.join(u.compact_extended_list(cent, 1)), weight, cent[0] + 1))
 
         elif len(cent) > 1:
             print("   Application point defined in the geometrical center of atoms %s." % \
@@ -59,23 +60,25 @@ def make_dipo(dipole, dipole_types, coords):
     # Orient dipole along an interatomic axis
     if len(dip_ori) == 2:
         
-        a = coords[dip_ori[0]]
-        b = coords[dip_ori[1]]
+        # -1 to adapt to Python numeration
+        a = coords[dip_ori[0] - 1]
+        b = coords[dip_ori[1] - 1]
         direction = (b - a) / np.linalg.norm(b - a)
 
         # dip = dip_s * direction
         dip = direction
 
         if u.verbosity >= 2:
-            print("   Dipole oriented along %s." % ', '.join(u.compact_extended_list(dip_ori, 1)))
+            print("   Dipole oriented along %s." % ', '.join(u.compact_extended_list(dip_ori)))
         
     # Orient dipole along an interatomic axis and forming and angle
     # theta with the plane defined by 3 atoms
     elif len(dip_ori) == 4:
 
-        a = coords[dip_ori[0]]
-        b = coords[dip_ori[1]]
-        c = coords[dip_ori[2]]
+        # -1 to adapt to Python numeration
+        a = coords[dip_ori[0] - 1]
+        b = coords[dip_ori[1] - 1]
+        c = coords[dip_ori[2] - 1]
         theta = dip_ori[3]
 
         # Generate a reference frame from point a, b, c
@@ -102,7 +105,7 @@ def make_dipo(dipole, dipole_types, coords):
 
         if u.verbosity >= 2:
             print("   Dipole oriented out of the plane defined by %s by %5.2f degrees." % \
-            (', '.join(u.compact_extended_list(dip_ori[:-1], 1)), theta))
+            (', '.join(u.compact_extended_list(dip_ori[:-1])), theta))
 
 
     else:

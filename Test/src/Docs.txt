@@ -36,7 +36,7 @@ this new section and the previous one.
 Each keyword requires a certain number of parameters.
 
 TYPE:
-used to define a dipole type. This keyword should be followed by 4 (5) para-
+used to define a dipole type. This keyword should be followed by 4 (6) para-
 meters. The first parameter is a flag to be assigned to this dipole type. This
 flag should be used to assign a dipole type when placing a dipole with the 
 keyword DIPOLE.
@@ -45,7 +45,8 @@ the Damping. (Units used normally are D**2 for the dipolar strength cm-1) for
 energies.
 The fourth optional parameter is a string that specifies if the polarizability
 associated to this dipole type is electric ('ele') or magnetic ('mag'). If
-omitted, an electric polarizability will be considered, by default.
+omitted, an electric polarizability will be considered, by default. If 'mag'
+is selected, another parameter (b_j) is expected.
 
 CENTER:
 used to define a dipole application point. This keyword should be followed
