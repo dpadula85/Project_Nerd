@@ -43,9 +43,9 @@ def options():
     parser.add_argument('-ls', '--lineshape', default='lor', choices=['lor', 'gau'],
     help='''Spectral lineshape.''')
 
-    parser.add_argument('--min', default=16000, help='''Low energy limit in wavenumbers.''')
+    parser.add_argument('--min', default=16000, type=float, help='''Low energy limit in wavenumbers.''')
 
-    parser.add_argument('--max', default=35000, help='''High energy limit in wavenumbers.''')
+    parser.add_argument('--max', default=35000, type=float, help='''High energy limit in wavenumbers.''')
 
     parser.add_argument('-v', '--verbosity', default=0, action='count', help='''Verbosity of the output.''')
 
@@ -76,7 +76,10 @@ if __name__ == '__main__':
     lineshape = args.lineshape
     u.verbosity = args.verbosity
 
-    SpecRange = np.arange(args.min, args.max + 1, (args.max - args.min)/500.)
+    step = (args.max - args.min)/500.
+    # step = 100.
+    SpecRange = np.arange(args.min, args.max + 1, step)
+    nsteps = (args.max - args.min) / step
 
     if u.verbosity >= 1:
         print
@@ -206,7 +209,11 @@ if __name__ == '__main__':
         print
 
     if u.verbosity >= 2:
-        print("   Lineshape: %s" % lineshape)
+        print("   Lineshape                : %10s" % lineshape)
+        print("   Low energy limit (cm-1)  : %10.2f" % args.min)
+        print("   High energy limit (cm-1) : %10.2f" % args.max)
+        print("   Step (cm-1)              : %10.2f" % step)
+        print("   Number of Steps          : %10d" % nsteps)
         print
 
     # pol_types_dict = {}
