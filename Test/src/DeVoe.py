@@ -137,7 +137,7 @@ if __name__ == '__main__':
     #
     centers = np.array([]).reshape(0,3)
     orientations = np.array([]).reshape(0,3)
-    # pol_types_list = []
+    pol_types = []
 
     if u.verbosity >= 1:
         print(" > ORIENTING DIPOLES...")
@@ -158,41 +158,10 @@ if __name__ == '__main__':
 
             centers = np.vstack((centers, appl_point))
             orientations = np.vstack((orientations, e))
-            # pol_types_list.append(dipole[0])
+            pol_types.append(dipole[0])
 
         if u.verbosity >= 2:
             print
-
-    #
-    # Build Interaction Matrix
-    #
-    if u.verbosity >= 1:
-        print(" > BUILDING INTERACTION MATRIX...")
-        print
-
-    G = np.eye(len(centers))
-
-    # We only need to build the G matrix elements with i != j
-    for i in range(len(centers)):
-        for j in range(i + 1, len(centers)):
-
-            # Comparison element by element of the coordinates of the center
-            if (centers[i] == centers[j]).all():
-
-                # set the interaction matrix element to 0
-                G[i,j] = 0.0
-                G[j,i] = 0.0
-
-            else:
-
-                # Calculate the interaction
-                e_i = orientations[i]
-                e_j = orientations[j]
-                r_ij = centers[j] - centers[i]
-                e_ij = r_ij / np.linalg.norm(r_ij)
-                G_ij = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
-                G[i,j] = G_ij
-                G[j,i] = G[i,j]
 
     #
     # Calculate imaginary and real parts of the desired type of polarizability
@@ -237,10 +206,46 @@ if __name__ == '__main__':
         pol_re = cp.pol_re(pol_im)
 
         # pol_types_dict[dip_type] = (pol_re, pol_im)
-
         # np.savetxt('uv.txt', uvspec, fmt='%.6e')
         # np.savetxt('im.txt', pol_im, fmt='%.6e')
         # np.savetxt('re.txt', pol_re, fmt='%.6e')
+
+    #
+    # Build Interaction Matrix
+    #
+    if u.verbosity >= 1:
+        print(" > BUILDING INTERACTION MATRIX...")
+        print
+
+    G = np.zeros((len(centers), len(centers)))
+
+    # We only need to build the G matrix elements with i != j
+    for i in range(len(centers)):
+        for j in range(i + 1, len(centers)):
+
+            # Comparison element by element of the coordinates of the center
+            if (centers[i] == centers[j]).all():
+
+                # set the interaction matrix element to 0
+                G[i,j] = 0.0
+                G[j,i] = 0.0
+
+            else:
+
+                # Calculate the interaction
+                e_i = orientations[i]
+                e_j = orientations[j]
+                r_ij = centers[j] - centers[i]
+                e_ij = r_ij / np.linalg.norm(r_ij)
+                G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
+                G[j,i] = G[i,j]
+
+    #
+    # Calculate optical spectra from Pols and G matrix
+    #
+    i = 0
+    for freq in SpecRange:
+        pass
 
     if u.verbosity >= 1:
         print(" > DONE!")
