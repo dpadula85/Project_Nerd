@@ -1,0 +1,73 @@
+################################################################################
+    
+###########         ____     __     __                              ########### 
+###########        |  _ \  __\ \   / /__   ___   _ __  _   _        ###########
+###########        | | | |/ _ \ \ / / _ \ / _ \ | '_ \| | | |       ###########
+###########        | |_| |  __/\ V / (_) |  __/_| |_) | |_| |       ###########
+###########        |____/ \___| \_/ \___/ \___(_) .__/ \__, |       ###########
+###########                                     |_|    |___/        ###########
+
+################################################################################
+
+This program calculates absorption and ECD spectra for multichromophoric systems
+following DeVoe method.
+Two input files are needed for a calculation: a structure file (accepted formats
+are currently pdb, mol2 and xyz) and an input file containing dipoles definition
+parameters.
+The default name for these two files are respectively structure.pdb and devoe.in
+but different filenames can be specified through command-line options.
+
+
+##############################
+###  devoe.in description  ###
+##############################
+
+A sample input is provided in devoe.in
+
+This is a plain text file. Lines starting with '#' are ignored.
+
+Each line of the input should start with a keyword among TYPE, CENTER and 
+DIPOLE. The keywords are case insensitive.
+The only rules to follow are that a DIPOLE keyword cannot be called before
+a CENTER keyword. This is because dipoles defined with DIPOLE will be centered
+on the CENTER above them.
+Additionally, when defining a new CENTER, a blank line should be left between
+this new section and the previous one.
+Each keyword requires a certain number of parameters.
+
+TYPE:
+used to define a dipole type. This keyword should be followed by 4 (6) para-
+meters. The first parameter is a flag to be assigned to this dipole type. This
+flag should be used to assign a dipole type when placing a dipole with the 
+keyword DIPOLE.
+The following parameters are the Dipolar Strength, the Excitation Energy and 
+the Damping. (Units used normally are D**2 for the dipolar strength cm-1) for
+energies.
+The fourth optional parameter is a string that specifies if the polarizability
+associated to this dipole type is electric ('ele') or magnetic ('mag'). If
+omitted, an electric polarizability will be considered, by default. If 'mag'
+is selected, another parameter (b_j) is expected.
+
+CENTER:
+used to define a dipole application point. This keyword should be followed
+by a float number W with 0 <= W <= 1 and a series of N numbers (atom indexes). 
+The dipole application point will be assigned to the geometrical center of the 
+specified atoms. A series of consecutive atoms can be specified with the compact
+notation N1-N2. If W > 0, a weight of W will be assigned to the first atom 
+of the series in the calculation of the center.
+All the dipoles defined after a CENTER keyword will be applied in the point 
+defined with this keyword, until a new CENTER is defined.
+To change application point for a new set of dipoles, leave a blank line and 
+define a new CENTER.
+
+DIPOLE:
+used to define the direction of a dipole of a certain TYPE applied in the  point
+previously defined by the CENTER keyword.
+The first parameter to follow is the TYPE of the dipole, which should be defined
+with TYPE keyword. The following parameters are 2 or 3 atom indexes.
+If only two atoms are specified, the dipole will be oriented in the direction 
+from atom 1 to atom 2.
+If three atoms are specified, a fourth parameter is expected, i.e. the angle 
+theta the dipole forms with the plane defined by the three atoms. In this case 
+the dipole will be oriented in the direction from atom 1 to atom 2, but it will 
+form an angle theta with the plane defined by atoms 1-3.
