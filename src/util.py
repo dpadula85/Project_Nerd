@@ -266,6 +266,12 @@ def banner(text=None, ch='=', length=78):
         return prefix + ' ' + text + ' ' + suffix
 
 
+def progbar(istep,ntot):
+
+    percentage = np.round(float(istep)/float(ntot)*100)
+    sys.stdout.write('\r')
+    sys.stdout.write("[%-50s] %d%%" % ('='*int(percentage/2), percentage))
+    sys.stdout.flush()
 
 if __name__ == '__main__':
     pass

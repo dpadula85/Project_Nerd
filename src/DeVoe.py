@@ -53,7 +53,7 @@ def options():
 
     parser.add_argument('--step', default=100, type=float, help='''Step for the spectral range.''')
 
-    parser.add_argument('--nsteps', default=500, type=float, help='''Number of steps for the calculation.''')
+    parser.add_argument('--nsteps', default=None, type=float, help='''Number of steps for the calculation.''')
 
     parser.add_argument('-v', '--verbosity', default=0, action='count', help='''Verbosity of the output.''')
 
@@ -87,9 +87,15 @@ if __name__ == '__main__':
     u.verbosity = args.verbosity
 
     nsteps = args.nsteps
-    step = args.step
-    # step = (args.max - args.min)/nsteps
-    SpecRange = np.arange(args.min, args.max + 1, step)
+
+    if nsteps:
+        step = (args.max - args.min)/nsteps
+        SpecRange = np.arange(args.min, args.max + 1, step)
+
+    else:
+        step = args.step
+        SpecRange = np.arange(args.min, args.max + 1, step)
+        nsteps = len(SpecRange)
 
     if u.verbosity >= 1:
         print
@@ -105,7 +111,7 @@ if __name__ == '__main__':
         print(" > READING INPUT FILES...")
         print
 
-    if u.verbosity >= 2:
+    # if u.verbosity >= 2:
         print("   Dipole orientation file : %s" % infile)
         print("   Structure file          : %s" % structure)
         print
@@ -189,7 +195,7 @@ if __name__ == '__main__':
         print(" > CALCULATING POLARIZABILITIES...")
         print
 
-    if u.verbosity >= 2:
+    # if u.verbosity >= 2:
         print("   Lineshape                : %10s" % lineshape)
         print("   Low energy limit (cm-1)  : %10.2f" % args.min)
         print("   High energy limit (cm-1) : %10.2f" % args.max)
@@ -230,7 +236,6 @@ if __name__ == '__main__':
     #
     if u.verbosity >= 1:
         print(" > BUILDING INTERACTION MATRIX...")
-        print
 
     G = np.zeros((len(centers), len(centers)))
 
@@ -246,6 +251,9 @@ if __name__ == '__main__':
                 G[i,j] = 0.0
                 G[j,i] = 0.0
 
+                if u.verbosity >= 2:
+                    print("   Interaction between dipoles %d-%d turned off." % (i + 1, j + 1))
+
             else:
 
                 # Calculate the interaction
@@ -256,19 +264,30 @@ if __name__ == '__main__':
                 G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
                 G[j,i] = G[i,j]
 
+                if u.verbosity >= 2:
+                    print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 ,np.linalg.norm(r_ij)))
+
+        if u.verbosity == 1:
+            u.progbar(i, len(centers))
+
     # np.savetxt('int_mat.txt', G, fmt='%10.6e')
     #
     # Calculate optical spectra from Pols and G matrix
     #
     if u.verbosity >= 1:
-        print(" > CALCULATING OPTICAL PROPERTIES...")
         print
+        print
+        print(" > CALCULATING OPTICAL PROPERTIES...")
 
     A = G.astype(complex)
     uv_system = np.array([])
     cd_system = np.array([])
 
     for k, freq in enumerate(SpecRange):
+
+        if u.verbosity >= 1:
+            u.progbar(k, len(SpecRange))
+
         for i, pol_type in enumerate(pol_types):
 
             pol_complex = pol_types_dict[pol_type][k][1]
@@ -289,24 +308,29 @@ if __name__ == '__main__':
         cd_freq = 0 
 
         # A_inv is symmetric, thus iteration on half the matrix is enough
-        for m in range(A.shape[0]):
-            for n in range(m, A.shape[0]):
+        for m in range(A_inv.shape[0]):
+            for n in range(m, A_inv.shape[0]):
 
                 e_m = orientations[m]
                 e_n = orientations[n]
 
                 # Calculate Absorption spectrum value
-                uv_freq += freq * A_inv[m,n].imag * np.dot(e_m, e_n) / cp.CGS_CNST2
+                uv_freq += A_inv[m,n].imag * np.dot(e_m, e_n)
                 
                 # Calculate ECD spectrum value
                 r_mn = centers[m] - centers[n]
                 C_mn = np.dot(r_mn, np.cross(e_m, e_n)) # - 4 * bj * np.dot(e_m, e_nmag) 
 
-                cd_freq += freq**2 * A_inv[m,n].imag * C_mn / (cp.CGS_CNST2 * cp.CGS_c)
+                cd_freq += A_inv[m,n].imag * C_mn
 
+        uv_freq = uv_freq * freq / cp.CGS_CNST2
         uv_system = np.r_[uv_system, uv_freq]
+
+        cd_freq = cd_freq * freq**2 * cp.CGS_CNST3
         cd_system = np.r_[cd_system, cd_freq]
 
+    # uv_system = uv_system / cp.CGS_CNST2
+    # cd_system = cp.CGS_CNST3 * cd_system # / (cp.CGS_CNST2 * cp.CGS_c)
     uv_system = np.c_[SpecRange, uv_system]
     cd_system = np.c_[SpecRange, cd_system]
 
@@ -316,6 +340,8 @@ if __name__ == '__main__':
     np.savetxt(cd_outfile, cd_system, fmt=line)
 
     if u.verbosity >= 1:
+        print
+        print
         print(" > DONE!")
         print
         print(u.banner(ch='#', length=80))
