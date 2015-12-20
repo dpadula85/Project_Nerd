@@ -25,4 +25,4 @@ from calcpol import *
 # print pol_real_part
 
 print 24 * pi_sq * N_A / (3298 * CGS_c**2)
-print 2*np.pi / (CGS_CNST2 * CGS_c)
+print 2*np.pi / (CGS_CNST2)

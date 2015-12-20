@@ -323,21 +323,37 @@ if __name__ == '__main__':
 
                 cd_freq += A_inv[m,n].imag * C_mn
 
-        uv_freq = uv_freq * freq / cp.CGS_CNST2
+        #############################################
+        ##### CHECK UNITS IN THE FOLLOWING CODE #####
+        #############################################
+
+        uv_freq = uv_freq * freq
         uv_system = np.r_[uv_system, uv_freq]
 
-        cd_freq = cd_freq * freq**2 * cp.CGS_CNST3
+        cd_freq = cd_freq * freq**2
         cd_system = np.r_[cd_system, cd_freq]
 
-    # uv_system = uv_system / cp.CGS_CNST2
-    # cd_system = cp.CGS_CNST3 * cd_system # / (cp.CGS_CNST2 * cp.CGS_c)
+    uv_system = uv_system / cp.CGS_CNST2
+    cd_system = cd_system * 2 * np.pi / cp.CGS_CNST2
     uv_system = np.c_[SpecRange, uv_system]
     cd_system = np.c_[SpecRange, cd_system]
 
     # Save calculated spectra
     line = '%10.2f %10.6e'
-    np.savetxt(uv_outfile, uv_system, fmt=line)
-    np.savetxt(cd_outfile, cd_system, fmt=line)
+
+    with open(uv_outfile, 'w') as uvfile:
+        uvfile.write("# UV SPECTRUM\n")
+        uvfile.write("# Generated with DeVoe.py\n")
+        uvfile.write("# Lineshape : %s\n" % lineshape)
+        uvfile.write("# cm-1     epsilon\n")
+        np.savetxt(uvfile, uv_system, fmt=line)
+
+    with open(cd_outfile, 'w') as cdfile:
+        cdfile.write("# ECD SPECTRUM\n")
+        cdfile.write("# Generated with DeVoe.py\n")
+        cdfile.write("# Lineshape : %s\n" % lineshape)
+        cdfile.write("# cm-1     Delta epsilon\n")
+        np.savetxt(cdfile, cd_system, fmt=line)
 
     if u.verbosity >= 1:
         print

@@ -3,7 +3,7 @@
 #
 # TYPE      # Flag  # Dip. S. (D**2)   # Freq. (cm-1)    # Damping (cm-1)  # Pol type   # bj
 #
-TYPE        A       40.0               23100             300
+TYPE        A       40.0               23100             800
 
 #
 # ORIENTATION SECTION
