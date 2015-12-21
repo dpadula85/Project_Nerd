@@ -240,14 +240,14 @@ if __name__ == '__main__':
     G = np.zeros((len(centers), len(centers)))
 
     # We only need to build the G matrix elements with i != j and to iterate
-    # on half of the matrix
+    # on half of the matrix, diagonal excluded
     for i in range(len(centers)):
         for j in range(i + 1, len(centers)):
 
             # Comparison element by element of the coordinates of the center
             if np.allclose(centers[i], centers[j]):
 
-                # set the interaction matrix element to 0
+                # Set the interaction matrix element to 0 if centers are the same
                 G[i,j] = 0.0
                 G[j,i] = 0.0
 
@@ -307,7 +307,7 @@ if __name__ == '__main__':
         uv_freq = 0 
         cd_freq = 0 
 
-        # A_inv is symmetric, thus iteration on half the matrix is enough
+        # A_inv is symmetric, thus iteration on half the matrix, diagonal included, is enough
         for m in range(A_inv.shape[0]):
             for n in range(m, A_inv.shape[0]):
 
