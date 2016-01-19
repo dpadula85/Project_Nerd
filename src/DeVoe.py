@@ -279,7 +279,7 @@ if __name__ == '__main__':
                 Upper_half.append(G_ij)
 
                 if u.verbosity >= 2:
-                   print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 ,np.linalg.norm(r_ij)))
+                   print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 , R_ij))
 
         if u.verbosity == 1:
             u.progbar(i, len(centers))
@@ -321,7 +321,7 @@ if __name__ == '__main__':
         # CHECK THIS STEP CAREFULLY
 
         # print G.real
-        G = G.swapaxes(1,2).reshape(12,-1)
+        G = G.swapaxes(1,2).reshape(len(centers)*3,-1)
         # np.savetxt('G.dat', G.real, fmt='%8.2e')
 
         try:
