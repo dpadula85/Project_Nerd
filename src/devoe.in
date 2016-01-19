@@ -56,8 +56,8 @@ dipole      A     12  14
 # To change application point, define another center!
 # Leave a blank line between two different centers sections!
 #
-center      0     10  12
-dipole      A     10  12
+center      0     20  22
+dipole      A     20  22
 
-center      0     12-16
-dipole      A     12  13  19  13.5
+center      0     32-36
+dipole      A     32  33 

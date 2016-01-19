@@ -237,38 +237,48 @@ if __name__ == '__main__':
     if u.verbosity >= 1:
         print(" > BUILDING INTERACTION MATRIX...")
 
-    G = np.zeros((len(centers), len(centers)))
+    I = np.eye(3)
+    G = []
 
     # We only need to build the G matrix elements with i != j and to iterate
     # on half of the matrix, diagonal excluded
     for i in range(len(centers)):
-        for j in range(i + 1, len(centers)):
+        for j in range(len(centers)):
 
-            # Comparison element by element of the coordinates of the center
-            if np.allclose(centers[i], centers[j]):
+            # Calculate the interaction
+            e_i = orientations[i]
+            e_j = orientations[j]
+            r_ij = centers[j] - centers[i]
+            R_ij = np.linalg.norm(r_ij)
 
-                # Set the interaction matrix element to 0 if centers are the same
-                G[i,j] = 0.0
-                G[j,i] = 0.0
+            if R_ij < 1e-20:
+
+                G_ij = np.zeros((3,3))
+                G.append(G_ij)
 
                 if u.verbosity >= 2:
                     print("   Interaction between dipoles %d-%d turned off." % (i + 1, j + 1))
 
+                continue
+
             else:
 
-                # Calculate the interaction
-                e_i = orientations[i]
-                e_j = orientations[j]
-                r_ij = centers[j] - centers[i]
-                e_ij = r_ij / np.linalg.norm(r_ij)
-                G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
-                G[j,i] = G[i,j]
+                # r_ij in dyadic form
+                r_tensor = np.kron(r_ij, r_ij).reshape(3,3)
+                # e_ij = r_ij / R_ij
+
+                G_ij = (I / R_ij**3) - (3 / R_ij**5) * r_tensor
+                # G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
+                # G[j,i] = G[i,j]
+                G.append(G_ij)
 
                 if u.verbosity >= 2:
-                    print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 ,np.linalg.norm(r_ij)))
+                   print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 ,np.linalg.norm(r_ij)))
 
         if u.verbosity == 1:
             u.progbar(i, len(centers))
+
+    G = np.array(G).reshape(len(pol_types),len(pol_types),3,3)
 
     # np.savetxt('int_mat.txt', G, fmt='%10.6e')
     #
@@ -279,7 +289,7 @@ if __name__ == '__main__':
         print
         print(" > CALCULATING OPTICAL PROPERTIES...")
 
-    A = G.astype(complex)
+    G = G.astype(complex)
     uv_system = np.array([])
     cd_system = np.array([])
 
@@ -291,16 +301,22 @@ if __name__ == '__main__':
         for i, pol_type in enumerate(pol_types):
 
             pol_complex = pol_types_dict[pol_type][k][1]
-            A[i,i] = 1 / pol_complex
+            G[i,i] = I / pol_complex
 
-        A_inv = np.linalg.inv(A)
+        print G[0,0]
+        # print G.flatten().reshape(12,12)[2,:]
+        # G = G.reshape(len(pol_types)*3,len(pol_types)*3)
+        # print
+        # print G[0]
 
+        A = np.linalg.inv(G)
+        sys.exit()
         # Check that the product between A and its inverse gives the
         # Identity matrix
-        if not np.allclose(np.dot(A, A_inv).real, np.eye(len(pol_types))):
-            print(u.banner(text='ERROR', ch='#', length=80))
-            print(" Matrix Inversion did not work properly.")
-            sys.exit()
+        # if not np.allclose(np.dot(G, A).real, np.eye(len(pol_types))):
+        #     print(u.banner(text='ERROR', ch='#', length=80))
+        #     print(" Matrix Inversion did not work properly.")
+        #     sys.exit()
 
         # Calculate the contributes to the spectra for each matrix element of
         # A_inv
@@ -308,8 +324,8 @@ if __name__ == '__main__':
         cd_freq = 0 
 
         # A_inv is symmetric, thus iteration on half the matrix, diagonal included, is enough
-        for m in range(A_inv.shape[0]):
-            for n in range(m, A_inv.shape[0]):
+        for m in range(A.shape[0]):
+            for n in range(m, A.shape[0]):
 
                 e_m = orientations[m]
                 e_n = orientations[n]
