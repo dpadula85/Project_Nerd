@@ -238,23 +238,29 @@ if __name__ == '__main__':
         print(" > BUILDING INTERACTION MATRIX...")
 
     I = np.eye(3)
-    G = []
+    Upper_half = []
 
     # We only need to build the G matrix elements with i != j and to iterate
     # on half of the matrix, diagonal excluded
     for i in range(len(centers)):
-        for j in range(len(centers)):
+        for j in range(i + 1, len(centers)):
 
             # Calculate the interaction
             e_i = orientations[i]
             e_j = orientations[j]
             r_ij = centers[j] - centers[i]
             R_ij = np.linalg.norm(r_ij)
+            
+            # if i == j:
+
+            #     G_ij = np.zeros((3,3))
+            #     Upper_half.append(G_ij)
+            #     continue
 
             if R_ij < 1e-20:
 
                 G_ij = np.zeros((3,3))
-                G.append(G_ij)
+                Upper_half.append(G_ij)
 
                 if u.verbosity >= 2:
                     print("   Interaction between dipoles %d-%d turned off." % (i + 1, j + 1))
@@ -270,7 +276,7 @@ if __name__ == '__main__':
                 G_ij = (I / R_ij**3) - (3 / R_ij**5) * r_tensor
                 # G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
                 # G[j,i] = G[i,j]
-                G.append(G_ij)
+                Upper_half.append(G_ij)
 
                 if u.verbosity >= 2:
                    print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 ,np.linalg.norm(r_ij)))
@@ -278,9 +284,17 @@ if __name__ == '__main__':
         if u.verbosity == 1:
             u.progbar(i, len(centers))
 
-    G = np.array(G).reshape(len(pol_types),len(pol_types),3,3)
+    Uh = np.array(Upper_half)
+    G = np.zeros((len(centers)*3, len(centers)*3)).reshape(len(centers), len(centers), 3, 3)
+    G[np.triu_indices(len(centers), 1)] = Uh
 
-    # np.savetxt('int_mat.txt', G, fmt='%10.6e')
+    # Symmetrize the matrix. This should be temporary, I'd like to find a
+    # numpy function to do this
+    for i in range(len(centers)):
+        for j in range(i + 1, len(centers)):
+
+            G[j,i] = G[i,j]
+
     #
     # Calculate optical spectra from Pols and G matrix
     #
@@ -303,20 +317,32 @@ if __name__ == '__main__':
             pol_complex = pol_types_dict[pol_type][k][1]
             G[i,i] = I / pol_complex
 
-        print G[0,0]
-        # print G.flatten().reshape(12,12)[2,:]
-        # G = G.reshape(len(pol_types)*3,len(pol_types)*3)
-        # print
-        # print G[0]
+        # RESHAPE MATRIX OF MATRICES BEFORE INVERSION
+        # CHECK THIS STEP CAREFULLY
 
-        A = np.linalg.inv(G)
-        sys.exit()
+        # print G.real
+        G = G.swapaxes(1,2).reshape(12,-1)
+        # np.savetxt('G.dat', G.real, fmt='%8.2e')
+
+        try:
+            A = np.linalg.inv(G)
+
+        except np.linalg.linalg.LinAlgError as err:
+            if 'Singular matrix' in err.message:
+                print(u.banner(text='ERROR', ch='#', length=80))
+                print(" Matrix Inversion did not work properly.")
+                print(" Contact the author if this problem persists.")
+                sys.exit()
+
         # Check that the product between A and its inverse gives the
         # Identity matrix
-        # if not np.allclose(np.dot(G, A).real, np.eye(len(pol_types))):
-        #     print(u.banner(text='ERROR', ch='#', length=80))
-        #     print(" Matrix Inversion did not work properly.")
-        #     sys.exit()
+        if not np.allclose(np.dot(G, A).real, np.eye(len(pol_types)*3)):
+            print(u.banner(text='ERROR', ch='#', length=80))
+            print(" Matrix Inversion did not work properly.")
+            print(" Contact the author if this problem persists.")
+            sys.exit()
+
+        sys.exit()
 
         # Calculate the contributes to the spectra for each matrix element of
         # A_inv
