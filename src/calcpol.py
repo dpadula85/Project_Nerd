@@ -17,8 +17,6 @@ import sys
 import numpy as np
 from scipy.constants import *
 
-import util as u
-
 # Calculation of some used constants
 log10 = np.log(10)
 pi_sq = np.pi**2

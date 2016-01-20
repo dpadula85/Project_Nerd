@@ -43,9 +43,7 @@ def options():
     parser.add_argument('-ls', '--lineshape', default='lor', choices=['lor', 'gau'],
     help='''Spectral lineshape.''')
 
-    parser.add_argument('--uvout', default='spec.UV', help='''UV output name.''')
-
-    parser.add_argument('--cdout', default='spec.CD', help='''CD output name.''')
+    parser.add_argument('-o', '--out', default='spec', help='''Prefix for output files.''')
 
     parser.add_argument('--min', default=16000, type=float, help='''Low energy limit in wavenumbers.''')
 
@@ -82,14 +80,14 @@ if __name__ == '__main__':
     structure = args.structure
     sf = args.sf
     lineshape = args.lineshape
-    uv_outfile = args.uvout + '.dat'
-    cd_outfile = args.cdout + '.dat'
+    uv_outfile = args.out + '.OD.dat'
+    cd_outfile = args.out + '.CD.dat'
     u.verbosity = args.verbosity
 
     nsteps = args.nsteps
 
     if nsteps:
-        step = (args.max - args.min)/nsteps
+        step = (args.max - args.min) / nsteps
         SpecRange = np.arange(args.min, args.max + 1, step)
 
     else:
@@ -161,12 +159,16 @@ if __name__ == '__main__':
 
     for cent, weight, dipoles in dipoles_info:
 
+        #
         # Get application point coordinates
+        #
         appl_point = m.make_cent(cent, weight, coords)
 
         for dipole in dipoles:
 
+            #
             # Get the unit vector for the orientation
+            #
             e = m.make_dipo(dipole, dipole_types, coords)
             
             # Translate the dipole in its application point
@@ -237,26 +239,22 @@ if __name__ == '__main__':
     if u.verbosity >= 1:
         print(" > BUILDING INTERACTION MATRIX...")
 
-    I = np.eye(3)
-    Upper_half = []
-
+    #
     # We only need to build the G matrix elements with i != j and to iterate
-    # on half of the matrix, diagonal excluded
+    # on half of the matrix, diagonal excluded. Each element of the G matrix
+    # is a 3x3 matrix.
+    #
+    Upper_half = []
+    I = np.eye(3)
     for i in range(len(centers)):
         for j in range(i + 1, len(centers)):
 
             # Calculate the interaction
-            e_i = orientations[i]
-            e_j = orientations[j]
+            # e_i = orientations[i]
+            # e_j = orientations[j]
             r_ij = centers[j] - centers[i]
             R_ij = np.linalg.norm(r_ij)
             
-            # if i == j:
-
-            #     G_ij = np.zeros((3,3))
-            #     Upper_half.append(G_ij)
-            #     continue
-
             if R_ij < 1e-20:
 
                 G_ij = np.zeros((3,3))
@@ -271,12 +269,15 @@ if __name__ == '__main__':
 
                 # r_ij in dyadic form
                 r_tensor = np.kron(r_ij, r_ij).reshape(3,3)
+
+                # Old
                 # e_ij = r_ij / R_ij
 
                 G_ij = (I / R_ij**3) - (3 / R_ij**5) * r_tensor
-                # G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
-                # G[j,i] = G[i,j]
                 Upper_half.append(G_ij)
+
+                # Old
+                # G[i,j] = (np.dot(e_i, e_j) - 3 * np.dot(e_i, e_ij) * np.dot(e_i, e_ij)) / np.linalg.norm(r_ij)**3
 
                 if u.verbosity >= 2:
                    print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 , R_ij))
@@ -284,12 +285,18 @@ if __name__ == '__main__':
         if u.verbosity == 1:
             u.progbar(i, len(centers))
 
-    Uh = np.array(Upper_half)
+    #
+    # Generate a 3Nx3N matrix and reshape it to a matrix of 3x3 matrices. Then,
+    # fill the upper triangle of G matrix with the 3x3 elements contained in Upper_half
+    #
     G = np.zeros((len(centers)*3, len(centers)*3)).reshape(len(centers), len(centers), 3, 3)
+    Uh = np.array(Upper_half)
     G[np.triu_indices(len(centers), 1)] = Uh
 
-    # Symmetrize the matrix. This should be temporary, I'd like to find a
-    # numpy function to do this
+    #
+    # Symmetrize the matrix. This should be temporary, I'd like to find a numpy
+    # function to do this
+    #
     for i in range(len(centers)):
         for j in range(i + 1, len(centers)):
 
@@ -307,6 +314,10 @@ if __name__ == '__main__':
     uv_system = np.array([])
     cd_system = np.array([])
 
+    #
+    # For each frequency, put the polarizability tensors at that frequency on
+    # the diagonal of G matrix
+    #
     for k, freq in enumerate(SpecRange):
 
         if u.verbosity >= 1:
@@ -317,13 +328,16 @@ if __name__ == '__main__':
             pol_complex = pol_types_dict[pol_type][k][1]
             G[i,i] = I / pol_complex
 
-        # RESHAPE MATRIX OF MATRICES BEFORE INVERSION
-        # CHECK THIS STEP CAREFULLY
-
+        #
+        # Reshape G matrix from a matrix of matrices to a regular 3Nx3N matrix
+        #
         # print G.real
         G = G.swapaxes(1,2).reshape(len(centers)*3,-1)
         # np.savetxt('G.dat', G.real, fmt='%8.2e')
 
+        #
+        # Invert G matrix. Handle errors for inversion
+        #
         try:
             A = np.linalg.inv(G)
 
@@ -334,8 +348,9 @@ if __name__ == '__main__':
                 print(" Contact the author if this problem persists.")
                 sys.exit()
 
-        # Check that the product between A and its inverse gives the
-        # Identity matrix
+        #
+        # Check that the product between G and A gives the Identity matrix
+        #
         if not np.allclose(np.dot(G, A).real, np.eye(len(pol_types)*3)):
             print(u.banner(text='ERROR', ch='#', length=80))
             print(" Matrix Inversion did not work properly.")
@@ -344,58 +359,60 @@ if __name__ == '__main__':
 
         sys.exit()
 
-        # Calculate the contributes to the spectra for each matrix element of
-        # A_inv
-        uv_freq = 0 
-        cd_freq = 0 
+        # TO DO
 
-        # A_inv is symmetric, thus iteration on half the matrix, diagonal included, is enough
-        for m in range(A.shape[0]):
-            for n in range(m, A.shape[0]):
+#         # Calculate the contributes to the spectra for each matrix element of
+#         # A
+#         uv_freq = 0 
+#         cd_freq = 0 
 
-                e_m = orientations[m]
-                e_n = orientations[n]
+#         # A is symmetric, thus iteration on half the matrix, diagonal included, is enough
+#         for m in range(A.shape[0]):
+#             for n in range(m, A.shape[0]):
 
-                # Calculate Absorption spectrum value
-                uv_freq += A_inv[m,n].imag * np.dot(e_m, e_n)
+#                 e_m = orientations[m]
+#                 e_n = orientations[n]
+
+#                 # Calculate Absorption spectrum value
+#                 uv_freq += A_inv[m,n].imag * np.dot(e_m, e_n)
                 
-                # Calculate ECD spectrum value
-                r_mn = centers[m] - centers[n]
-                C_mn = np.dot(r_mn, np.cross(e_m, e_n)) # - 4 * bj * np.dot(e_m, e_nmag) 
+#                 # Calculate ECD spectrum value
+#                 r_mn = centers[m] - centers[n]
+#                 C_mn = np.dot(r_mn, np.cross(e_m, e_n)) # - 4 * bj * np.dot(e_m, e_nmag) 
 
-                cd_freq += A_inv[m,n].imag * C_mn
+#                 cd_freq += A_inv[m,n].imag * C_mn
 
-        #############################################
-        ##### CHECK UNITS IN THE FOLLOWING CODE #####
-        #############################################
+#         #############################################
+#         ##### CHECK UNITS IN THE FOLLOWING CODE #####
+#         #############################################
 
-        uv_freq = uv_freq * freq
-        uv_system = np.r_[uv_system, uv_freq]
+#         uv_freq = uv_freq * freq
+#         uv_system = np.r_[uv_system, uv_freq]
 
-        cd_freq = cd_freq * freq**2
-        cd_system = np.r_[cd_system, cd_freq]
+#         cd_freq = cd_freq * freq**2
+#         cd_system = np.r_[cd_system, cd_freq]
 
-    uv_system = uv_system / cp.CGS_CNST2
-    cd_system = cd_system * 2 * np.pi / cp.CGS_CNST2
-    uv_system = np.c_[SpecRange, uv_system]
-    cd_system = np.c_[SpecRange, cd_system]
+#     uv_system = uv_system / cp.CGS_CNST2
+#     cd_system = cd_system * 2 * np.pi / cp.CGS_CNST2
+#     uv_system = np.c_[SpecRange, uv_system]
+#     cd_system = np.c_[SpecRange, cd_system]
 
-    # Save calculated spectra
-    line = '%10.2f %10.6e'
+#     # Save calculated spectra
+#     line = '%10.2f %10.6e'
 
-    with open(uv_outfile, 'w') as uvfile:
-        uvfile.write("# UV SPECTRUM\n")
-        uvfile.write("# Generated with DeVoe.py\n")
-        uvfile.write("# Lineshape : %s\n" % lineshape)
-        uvfile.write("# cm-1     epsilon\n")
-        np.savetxt(uvfile, uv_system, fmt=line)
+#     with open(uv_outfile, 'w') as uvfile:
+#         uvfile.write("# UV SPECTRUM\n")
+#         uvfile.write("# Generated with DeVoe.py\n")
+#         uvfile.write("# Lineshape : %s\n" % lineshape)
+#         uvfile.write("# cm-1     epsilon\n")
+#         np.savetxt(uvfile, uv_system, fmt=line)
 
-    with open(cd_outfile, 'w') as cdfile:
-        cdfile.write("# ECD SPECTRUM\n")
-        cdfile.write("# Generated with DeVoe.py\n")
-        cdfile.write("# Lineshape : %s\n" % lineshape)
-        cdfile.write("# cm-1     Delta epsilon\n")
-        np.savetxt(cdfile, cd_system, fmt=line)
+#     with open(cd_outfile, 'w') as cdfile:
+#         cdfile.write("# ECD SPECTRUM\n")
+#         cdfile.write("# Generated with DeVoe.py\n")
+#         cdfile.write("# Lineshape : %s\n" % lineshape)
+#         cdfile.write("# cm-1     Delta epsilon\n")
+#         np.savetxt(cdfile, cd_system, fmt=line)
 
     if u.verbosity >= 1:
         print
