@@ -351,7 +351,7 @@ if __name__ == '__main__':
         #
         # Check that the product between G and A gives the Identity matrix
         #
-        if not np.allclose(np.dot(G, A).real, np.eye(len(pol_types)*3)):
+        if not np.allclose(np.dot(G, A).real, np.eye(len(centers)*3)):
             print(u.banner(text='ERROR', ch='#', length=80))
             print(" Matrix Inversion did not work properly.")
             print(" Contact the author if this problem persists.")
