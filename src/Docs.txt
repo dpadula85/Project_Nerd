@@ -41,8 +41,8 @@ meters. The first parameter is a flag to be assigned to this dipole type. This
 flag should be used to assign a dipole type when placing a dipole with the 
 keyword DIPOLE.
 The following parameters are the Dipolar Strength, the Excitation Energy and 
-the Damping. (Units used normally are D**2 for the dipolar strength cm-1) for
-energies.
+the Damping. (Units used normally are D**2 for the dipolar strength cm-1 for
+energies).
 The fourth optional parameter is a string that specifies if the polarizability
 associated to this dipole type is electric ('ele') or magnetic ('mag'). If
 omitted, an electric polarizability will be considered, by default. If 'mag'
