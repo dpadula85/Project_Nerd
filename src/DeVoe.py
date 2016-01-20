@@ -254,7 +254,7 @@ if __name__ == '__main__':
             # e_j = orientations[j]
             r_ij = centers[j] - centers[i]
             R_ij = np.linalg.norm(r_ij)
-            
+
             if R_ij < 1e-20:
 
                 G_ij = np.zeros((3,3))
@@ -332,14 +332,14 @@ if __name__ == '__main__':
         # Reshape G matrix from a matrix of matrices to a regular 3Nx3N matrix
         #
         # print G.real
-        G = G.swapaxes(1,2).reshape(len(centers)*3,-1)
-        # np.savetxt('G.dat', G.real, fmt='%8.2e')
+        G_tmp = G.swapaxes(1,2).reshape(len(centers)*3,-1)
+        # np.savetxt('G.dat', G_tmp.real, fmt='%8.2e')
 
         #
         # Invert G matrix. Handle errors for inversion
         #
         try:
-            A = np.linalg.inv(G)
+            A = np.linalg.inv(G_tmp)
 
         except np.linalg.linalg.LinAlgError as err:
             if 'Singular matrix' in err.message:
@@ -351,13 +351,13 @@ if __name__ == '__main__':
         #
         # Check that the product between G and A gives the Identity matrix
         #
-        if not np.allclose(np.dot(G, A).real, np.eye(len(centers)*3)):
+        if not np.allclose(np.dot(G_tmp, A).real, np.eye(len(centers)*3)):
             print(u.banner(text='ERROR', ch='#', length=80))
             print(" Matrix Inversion did not work properly.")
             print(" Contact the author if this problem persists.")
             sys.exit()
 
-        sys.exit()
+        # sys.exit()
 
         # TO DO
 
