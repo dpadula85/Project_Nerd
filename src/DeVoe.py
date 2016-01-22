@@ -349,7 +349,7 @@ if __name__ == '__main__':
         # Reshape the 3N*3N A matrix in a matrix of 3x3 matrices
         #
         # np.savetxt('A.dat', A.real, fmt='%8.2e')
-        A = np.array([ A[a*3:(a+1)*3, b*3:(b+1)*3] for (a, b) in np.ndindex(len(centers), len(centers)) ]).reshape(len(centers), len(centers), 3, 3)
+        # A = np.array([ A[a*3:(a+1)*3, b*3:(b+1)*3] for (a, b) in np.ndindex(len(centers), len(centers)) ]).reshape(len(centers), len(centers), 3, 3)
 
         # blocks = map(lambda x : np.split(x, A.shape[1]/dim, 1), np.split(A, A.shape[0]/dim, 0))
         # A = np.array(blocks)
@@ -362,22 +362,24 @@ if __name__ == '__main__':
         cd_freq = 0 
 
         for m in range(A.shape[0]):
-            for n in range(A.shape[1]):
+            for n in range(m, A.shape[1]):
 
                 e_m = orientations[m]
                 e_n = orientations[n]
 
-                # Calculate Absorption spectrum value
-                dotprod = np.dot(A[m,n].imag, e_m)
-                uv_freq += np.dot(dotprod, e_n)
-                
                 # Calculate ECD spectrum value
                 r_mn = centers[m] - centers[n]
                 C_mn = np.dot(r_mn, np.cross(e_m, e_n)) # - 4 * bj * np.dot(e_m, e_nmag) 
 
-                # CHECK THIS: CD_FREQ IS A MATRIX
-                cd_freq += A[m,n].imag * C_mn
+                # Calculate Absorption spectrum value
+                if m == n:
+                    uv_freq += A[m,n].imag * np.dot(e_m, e_n)
+                    cd_freq += A[m,n].imag * C_mn
 
+                else:
+                    uv_freq += 2 * A[m,n].imag * np.dot(e_m, e_n)
+                    cd_freq += 2 * A[m,n].imag * C_mn
+                
         sys.exit()
 
         # CHECK THE CONSTANT FOR UV
