@@ -142,7 +142,8 @@ if __name__ == '__main__':
     # Get dipole types, application points and orientations in terms of atomic
     # indexes from the input file
     #
-    coords = np.array(coords)
+    A2cm = 1e-8
+    coords = np.array(coords) * A2cm
     dipole_types, dipoles_info = pi.parse_input(infile)
 
     #
@@ -250,10 +251,11 @@ if __name__ == '__main__':
         for j in range(i + 1, len(centers)):
 
             # Calculate the interaction
+            # These distances are in Angstrom
             r_ij = centers[j] - centers[i]
             R_ij = np.linalg.norm(r_ij)
 
-            if R_ij < 1e-20:
+            if R_ij < 1e-25:
 
                 G_ij = np.zeros((3,3))
                 Upper_half.append(G_ij)
@@ -265,6 +267,7 @@ if __name__ == '__main__':
 
             else:
 
+
                 # r_ij in dyadic form
                 r_tensor = np.kron(r_ij, r_ij).reshape(3,3)
 
@@ -272,7 +275,7 @@ if __name__ == '__main__':
                 Upper_half.append(G_ij)
 
                 if u.verbosity >= 2:
-                   print("   Distance between dipoles %d-%d: %10.4f" % (i + 1, j + 1 , R_ij))
+                   print("   Distance between dipoles %d-%d (Ang): %10.4f" % (i + 1, j + 1 , R_ij * 1e8))
 
         if u.verbosity == 1:
             u.progbar(i, len(centers))
@@ -361,33 +364,31 @@ if __name__ == '__main__':
         for m in range(A.shape[0]):
             for n in range(A.shape[1]):
 
-                print A[m,n].real
                 e_m = orientations[m]
                 e_n = orientations[n]
 
                 # Calculate Absorption spectrum value
-                dotprod1 = np.dot(A[m,n].imag, e_m)
-                uv_freq += np.dot(dotprod1, e_n)
+                dotprod = np.dot(A[m,n].imag, e_m)
+                uv_freq += np.dot(dotprod, e_n)
                 
                 # Calculate ECD spectrum value
                 r_mn = centers[m] - centers[n]
                 C_mn = np.dot(r_mn, np.cross(e_m, e_n)) # - 4 * bj * np.dot(e_m, e_nmag) 
 
+                # CHECK THIS: CD_FREQ IS A MATRIX
                 cd_freq += A[m,n].imag * C_mn
 
-        #############################################
-        ##### CHECK UNITS IN THE FOLLOWING CODE #####
-        #############################################
         sys.exit()
 
+        # CHECK THE CONSTANT FOR UV
         uv_freq = uv_freq * freq
         uv_system = np.r_[uv_system, uv_freq]
 
-        cd_freq = cd_freq * freq**2
+        cd_freq = cd_freq * freq**2 * cp.CGS_CNST3
         cd_system = np.r_[cd_system, cd_freq]
 
-    uv_system = uv_system / cp.CGS_CNST2
-    cd_system = cd_system * 2 * np.pi / cp.CGS_CNST2
+    # uv_system = uv_system / cp.CGS_CNST2
+    # cd_system = cd_system * cp.CGS_CNST3
     uv_system = np.c_[SpecRange, uv_system]
     cd_system = np.c_[SpecRange, cd_system]
 
