@@ -383,7 +383,7 @@ if __name__ == '__main__':
                     uv_freq += 2 * A[m,n].imag * np.dot(e_m, e_n)
                     cd_freq += 2 * A[m,n].imag * C_mn
                 
-        sys.exit()
+        # sys.exit()
 
         # CHECK THE CONSTANTS FOR UV and CD
         uv_freq = uv_freq * freq
