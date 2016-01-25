@@ -362,13 +362,16 @@ if __name__ == '__main__':
         cd_freq = 0 
 
         for m in range(A.shape[0]):
+
             for n in range(m, A.shape[1]):
 
-                e_m = orientations[m]
-                e_n = orientations[n]
+                m_idx = m / 3
+                e_m = orientations[m_idx]
+                n_idx = n / 3
+                e_n = orientations[n_idx]
 
                 # Calculate ECD spectrum value
-                r_mn = centers[m] - centers[n]
+                r_mn = centers[m_idx] - centers[n_idx]
                 C_mn = np.dot(r_mn, np.cross(e_m, e_n)) # - 4 * bj * np.dot(e_m, e_nmag) 
 
                 # Calculate Absorption spectrum value
@@ -382,7 +385,7 @@ if __name__ == '__main__':
                 
         sys.exit()
 
-        # CHECK THE CONSTANT FOR UV
+        # CHECK THE CONSTANTS FOR UV and CD
         uv_freq = uv_freq * freq
         uv_system = np.r_[uv_system, uv_freq]
 

@@ -34,7 +34,8 @@ CGS_to_Acube = 1e24
 # Prefactor for absorption spectra in CGS units 
 CGS_CNST = 3000 * log10 * CGS_h * CGS_c / (32 * np.pi**3 * N_A)
 CGS_CNST2 = 6909 / (8 * pi_sq * N_A)
-CGS_CNST3 = 24 * pi_sq * N_A / (3298 * CGS_c**4)
+CGS_CNST3 = 24 * pi_sq * N_A / (3298 * CGS_c**2)
+# CGS_CNST3 = 24 * pi_sq * N_A / (3298 * CGS_c**4)
 
 #
 # Lorentzian and Gaussian Bandwidth from Chirality, 2013, 25, 243
