@@ -33,9 +33,11 @@ CGS_to_Acube = 1e24
 
 # Prefactor for absorption spectra in CGS units 
 CGS_CNST = 3000 * log10 * CGS_h * CGS_c / (32 * np.pi**3 * N_A)
-CGS_CNST2 = 6909 / (8 * pi_sq * N_A)
-CGS_CNST3 = 24 * pi_sq * N_A / (3298 * CGS_c**2)
-# CGS_CNST3 = 24 * pi_sq * N_A / (3298 * CGS_c**4)
+
+# These two following constants include the CGS_c factor necessary to convert
+# frequencies from Hz to wavenumbers
+CGS_CNST2 = 6909 * CGS_c**2 / (8 * pi_sq * N_A)
+CGS_CNST3 = 24 * pi_sq * N_A / (3298 * CGS_c**4)
 
 #
 # Lorentzian and Gaussian Bandwidth from Chirality, 2013, 25, 243
@@ -71,12 +73,12 @@ def pol_im(uvspec):
     SpectralRange = uvspec[:,0]
     epsilon = uvspec[:,1]
 
-    # Working in CGS units, using SpectralRange in Hz
-    # in fact speed of light at the numerator is missing
+    # Working in CGS units, using SpectralRange in wavenumbers
+    # conversion factor already included in CGS_CNST2
     pol_im_part =  CGS_CNST2 * epsilon / SpectralRange
 
     # Conversion from cm**3 to A**3
-    # pol_im_part *= CGS_to_Acube  
+    pol_im_part *= CGS_to_Acube  
     pol_im_part = np.c_[SpectralRange, pol_im_part]
 
     return pol_im_part

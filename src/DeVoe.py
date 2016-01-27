@@ -320,7 +320,8 @@ if __name__ == '__main__':
         #
         G_tmp = G.swapaxes(1,2).reshape(len(centers)*3,-1)
         G_tmp = G_tmp + G_tmp.T - np.diag(G_tmp.diagonal())
-        # np.savetxt('G.dat', G_tmp.real, fmt='%8.2e')
+        # np.savetxt('G_im.dat', G_tmp.imag, fmt='%12.2e')
+        # np.savetxt('G_re.dat', G_tmp.real, fmt='%12.2e')
         # sys.exit()
 
         #
@@ -383,17 +384,13 @@ if __name__ == '__main__':
                     uv_freq += 2 * A[m,n].imag * np.dot(e_m, e_n)
                     cd_freq += 2 * A[m,n].imag * C_mn
                 
-        # sys.exit()
-
         # CHECK THE CONSTANTS FOR UV and CD
-        uv_freq = uv_freq * freq
+        uv_freq = uv_freq * freq * 3 / cp.CGS_CNST2
         uv_system = np.r_[uv_system, uv_freq]
 
         cd_freq = cd_freq * freq**2 * cp.CGS_CNST3
         cd_system = np.r_[cd_system, cd_freq]
 
-    # uv_system = uv_system / cp.CGS_CNST2
-    # cd_system = cd_system * cp.CGS_CNST3
     uv_system = np.c_[SpecRange, uv_system]
     cd_system = np.c_[SpecRange, cd_system]
 
